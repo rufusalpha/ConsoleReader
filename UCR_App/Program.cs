@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SQLite;
 
 namespace UCR_App
 {
@@ -9,9 +10,22 @@ namespace UCR_App
         static void Main()
         {
             Console.WriteLine("SQLite test");
+            DataBase db = new DataBase();
+
+            try
+            {
+                string txt = db.ReadData("aaa", "");
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             
-            
-            
+
+
+
+            db.CloseConnection();
         }
     }
 }

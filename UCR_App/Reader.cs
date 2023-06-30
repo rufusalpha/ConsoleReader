@@ -3,7 +3,10 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data;
 using System.Text;
+using System.Data.SQLite;
+
 
 namespace UCR_App
 {
@@ -82,7 +85,153 @@ namespace UCR_App
 
     public class DataBase
     {
+        private SQLiteConnection Connection;
         
+        public DataBase(string file)
+        {
+            if (file != "" && file != null)
+                Connection = new SQLiteConnection("Data source=" + file);
+            else
+                throw new ArgumentException("DataBase(file) DataBase file cannot be null or empty");
+
+            OpenConnection();
+        }
+        public DataBase()
+        {
+            Connection = new SQLiteConnection("Data source=database.db");
+            
+            OpenConnection();
+        }
+
+        private void OpenConnection()
+        {
+            try
+            {
+                Connection.Open();
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("DataBase Connection could not be opened");
+            }
+            
+            Console.WriteLine("DEBUG - Connection with file " + Connection.FileName + " OPEN");
+        }
+        public void CloseConnection()
+        {
+            Console.WriteLine("DEBUG - Connection with file " + Connection.FileName + " CLOSED");
+            if (Connection.State != ConnectionState.Closed)
+                Connection.Close();
+        }
+
+
+        public void CreateTable(string name, params string[] fields )
+        {
+            SQLiteCommand cmd = Connection.CreateCommand();
+            string txt = "CREATE TABLE " + name + " (";
+
+            if (fields.Length % 2==1)
+                throw new ArgumentException("CREATE TABLE: Number of types does not match number of fileds");
+
+            for (int i = 0; i < fields.Length; i+=2)
+                txt += fields[i] + " " + fields[i + 1] + ",";
+            
+            txt = txt.Substring(0, txt.Length - 1) + ")";
+
+            try
+            {
+                cmd.CommandText = txt;
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                throw new SQLiteException(e.Message);
+            }
+            
+        }
+        public void InsertInto(string table, int numberOfFields, params string[] values)
+        {
+            SQLiteCommand cmd = Connection.CreateCommand();
+            string txt = "INSERT INTO " + table + " (";
+
+            if (numberOfFields < values.Length && values.Length % numberOfFields == 0)
+            {
+                for (int i = 0; i < numberOfFields; i++)
+                {
+                    txt += values[i] + ",";
+                }
+                txt = txt.Substring(0, txt.Length - 1) + ") VALUES (";
+                
+                int counter = 0;
+                for (int i = numberOfFields; i < values.Length; i++)
+                {
+                    txt += values[i];
+                    if (++counter < numberOfFields)
+                    {
+                        txt += ",";
+                    }
+                    else
+                    {
+                        txt += "), (";
+                        counter = 0;
+                    }
+                }
+            
+                txt = txt.Substring(0, txt.Length - 3);
+                
+                try
+                {
+                    Console.WriteLine(txt);
+                    cmd.CommandText = txt;
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw new SQLiteException(e.Message);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("INSERT INTO: Number of fileds does not match number of values");
+            }
+            
+            
+        }
+
+        public string ReadData(string table, string conditions, params string[] fields)
+        {
+            SQLiteCommand cmd = Connection.CreateCommand();
+            SQLiteDataReader reader;
+            string output = "";
+                
+            string txt = "SELECT ";
+
+            if (fields.Length == 0)
+            {
+                txt += "*";
+            }
+            else
+            {
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    txt += fields[i] + ",";
+                }
+
+                txt = txt.Substring(0, txt.Length - 1);
+            }
+
+            txt = txt + " FROM " + table + " " + conditions;
+
+            Console.WriteLine(txt);
+            reader = cmd.ExecuteReader();
+            
+            while (reader.Read())
+            {
+                output += reader.GetString(0) + '\n';
+
+            }
+
+            return output;
+        }
     }
 }
 
