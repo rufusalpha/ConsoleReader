@@ -4,13 +4,13 @@ namespace UCR_App
 {
     internal class Application
     {
-        static readonly string rootFile = Environment.ExpandEnvironmentVariables("%appdata%") + @"\..\LocalLow\Empyrean\House Flipper Game\Player.log";
+        static readonly string RootFile = Environment.ExpandEnvironmentVariables("%appdata%") + @"\..\LocalLow\Empyrean\House Flipper Game\Player.log";
         
         static void Main()
         {
             try
             {
-                Reader console = new Reader(rootFile);
+                Reader console = new Reader(RootFile);
                 KeyValuePair<int, string> entry;
                 
                 Console.WriteLine("Press ENTER to continue");
