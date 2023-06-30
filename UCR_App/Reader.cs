@@ -7,28 +7,11 @@ using System.Text;
 
 namespace UCR_App
 {
-    public struct Entry
-    {
-        public string Identifier;
-        public string Description;
-
-        public Entry( string identifier, string description )
-        {
-            Identifier = identifier;
-            Description = description;
-        }
-
-        public override string ToString()
-        {
-            return $"ID: {Identifier}\n \tDesc: {Description}";
-        }
-    }
-    
     public class Reader
     {
-        private List<Entry> Logs = new List<Entry>();
+        private Dictionary<ulong, string> Logs = new Dictionary<ulong, string>();
         private string FilePath { get; }
-        
+
         public Reader(string path)
         {
             FilePath = Path.GetFullPath(path);
@@ -39,40 +22,61 @@ namespace UCR_App
             else
             {
                 string[] lines = File.ReadAllLines(path);
-                ulong counter = 0;
-                string tempIdenteifier="", tempDescription="";
-                
+                ulong counter = 0, id = 0;
+                string desc = "";
+
                 foreach (string line in lines)
                 {
                     if (line == "")
                     {
                         continue;
                     }
+
                     if (counter != 0 && line.Contains("(Filename: "))
                     {
-                        Entry temp = new Entry(tempIdenteifier, tempDescription);
-                        Logs.Add(temp);
+                        //Entry temp = new Entry(tempIdenteifier, tempDescription);
+                        Logs.Add(id++, desc);
+
                         counter = 0;
-                        tempIdenteifier = "";
-                        tempDescription = "";
+                        desc = "";
                         continue;
                     }
-                    
-                    if (counter == 0)
-                    {
-                        tempIdenteifier = line;
-                    }
-                    tempDescription += line + '\n';
+
+                    desc += line + '\n';
                     counter++;
                 }
             }
         }
-        public void GetAll()
+
+        public void PrintAll()
         {
-            ulong i = 0;
-            foreach (Entry entry in Logs)
+            foreach (KeyValuePair<ulong, string> entry in Logs)
             {
-                Console.WriteLine( $"{i++}\t{entry.ToString()}");
+                Console.WriteLine($"{entry.Key} \t{entry.Value}");
+            }
+        }
+        public void PrintEntry(ulong index)
+        {
+            if (index < (ulong)Logs.Count)
+                Console.WriteLine($"{index} \t{Logs[index]}");
+            else
+            {
+                throw new ArgumentOutOfRangeException("PrintEntry(index)");
+            }
+        }
+        public ulong Count()
+        {
+            return (ulong)Logs.Count;
+        }
+        public KeyValuePair<ulong, string> GetEntry(ulong index)
+        {
+            if (index < (ulong)Logs.Count)
+            {
+                return new KeyValuePair<ulong, string>(index, Logs[index]);    
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("GetEntry(index)");
             }
         }
     }
