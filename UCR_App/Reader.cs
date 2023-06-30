@@ -1,13 +1,18 @@
 using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text;
 
 namespace UCR_App
 {
-    public readonly struct Entry
+    public struct Entry
     {
-        private string Identifier { get; }
-        private string Description { get; }
+        public string Identifier;
+        public string Description;
 
-        public Entry( string identifier, string description  )
+        public Entry( string identifier, string description )
         {
             Identifier = identifier;
             Description = description;
@@ -15,15 +20,15 @@ namespace UCR_App
 
         public override string ToString()
         {
-            return $"{Identifier}\n{Description}";
+            return $"ID: {Identifier}\n \tDesc: {Description}";
         }
     }
-
+    
     public class Reader
     {
-        private List<Entry> Logs;
+        private List<Entry> Logs = new List<Entry>();
         private string FilePath { get; }
-
+        
         public Reader(string path)
         {
             FilePath = Path.GetFullPath(path);
@@ -37,62 +42,37 @@ namespace UCR_App
                 ulong counter = 0;
                 string tempIdenteifier="", tempDescription="";
                 
-
                 foreach (string line in lines)
                 {
                     if (line == "")
                     {
                         continue;
                     }
-                    if (line.Contains("(Filename: "))
+                    if (counter != 0 && line.Contains("(Filename: "))
                     {
-                        Logs.Add(new Entry(tempIdenteifier, tempDescription));
+                        Entry temp = new Entry(tempIdenteifier, tempDescription);
+                        Logs.Add(temp);
                         counter = 0;
+                        tempIdenteifier = "";
+                        tempDescription = "";
+                        continue;
                     }
                     
                     if (counter == 0)
                     {
                         tempIdenteifier = line;
                     }
-                    tempDescription += line;
+                    tempDescription += line + '\n';
                     counter++;
                 }
             }
         }
-
-        public Reader(string path, string separator)
+        public void GetAll()
         {
-            FilePath = Path.GetFullPath(path);
-            if (!File.Exists(path))
+            ulong i = 0;
+            foreach (Entry entry in Logs)
             {
-                throw new FileLoadException($"File not found or unable to be loaded: {FilePath}");
-            }
-            else
-            {
-                string[] lines = File.ReadAllLines(path);
-                ulong counter = 0;
-                string tempIdenteifier="", tempDescription="";
-                
-
-                foreach (string line in lines)
-                {
-                    if (line == "")
-                    {
-                        continue;
-                    }
-                    if (line.Contains(separator))
-                    {
-                        Logs.Add(new Entry(tempIdenteifier, tempDescription));
-                        counter = 0;
-                    }
-                    
-                    if (counter == 0)
-                    {
-                        tempIdenteifier = line;
-                    }
-                    tempDescription += line;
-                    counter++;
-                }
+                Console.WriteLine( $"{i++}\t{entry.ToString()}");
             }
         }
     }
