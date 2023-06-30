@@ -11,13 +11,13 @@ namespace UCR_App
             try
             {
                 Reader console = new Reader(rootFile);
-                KeyValuePair<ulong, string> entry;
+                KeyValuePair<int, string> entry;
                 
                 Console.WriteLine("Press ENTER to continue");
                 Console.ReadLine();
                 
-                console.PrintAll();
-                //console.PrintEntry(3);
+                console.PrintAll(); 
+                console.PrintEntry(3);
                 entry = console.GetEntry(3);
                 Console.WriteLine($"{entry.Key} \t{entry.Value}");
             }

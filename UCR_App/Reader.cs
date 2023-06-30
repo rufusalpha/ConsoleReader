@@ -9,7 +9,7 @@ namespace UCR_App
 {
     public class Reader
     {
-        private Dictionary<ulong, string> Logs = new Dictionary<ulong, string>();
+        private Dictionary<int, string> Logs = new Dictionary<int, string>();
         private string FilePath { get; }
 
         public Reader(string path)
@@ -22,7 +22,7 @@ namespace UCR_App
             else
             {
                 string[] lines = File.ReadAllLines(path);
-                ulong counter = 0, id = 0;
+                int counter = 0, id = 0;
                 string desc = "";
 
                 foreach (string line in lines)
@@ -34,7 +34,6 @@ namespace UCR_App
 
                     if (counter != 0 && line.Contains("(Filename: "))
                     {
-                        //Entry temp = new Entry(tempIdenteifier, tempDescription);
                         Logs.Add(id++, desc);
 
                         counter = 0;
@@ -50,29 +49,29 @@ namespace UCR_App
 
         public void PrintAll()
         {
-            foreach (KeyValuePair<ulong, string> entry in Logs)
+            foreach (KeyValuePair<int, string> entry in Logs)
             {
                 Console.WriteLine($"{entry.Key} \t{entry.Value}");
             }
         }
-        public void PrintEntry(ulong index)
+        public void PrintEntry(int index)
         {
-            if (index < (ulong)Logs.Count)
+            if (index < Logs.Count)
                 Console.WriteLine($"{index} \t{Logs[index]}");
             else
             {
                 throw new ArgumentOutOfRangeException("PrintEntry(index)");
             }
         }
-        public ulong Count()
+        public int Count()
         {
-            return (ulong)Logs.Count;
+            return Logs.Count;
         }
-        public KeyValuePair<ulong, string> GetEntry(ulong index)
+        public KeyValuePair<int, string> GetEntry(int index)
         {
-            if (index < (ulong)Logs.Count)
+            if (index < Logs.Count)
             {
-                return new KeyValuePair<ulong, string>(index, Logs[index]);    
+                return new KeyValuePair<int, string>(index, Logs[index]);    
             }
             else
             {
