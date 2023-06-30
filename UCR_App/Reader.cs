@@ -79,5 +79,10 @@ namespace UCR_App
             }
         }
     }
+
+    public class DataBase
+    {
+        
+    }
 }
 
