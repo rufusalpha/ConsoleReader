@@ -222,12 +222,22 @@ namespace UCR_App
             txt = txt + " FROM " + table + " " + conditions;
 
             Console.WriteLine(txt);
-            reader = cmd.ExecuteReader();
-            
-            while (reader.Read())
-            {
-                output += reader.GetString(0) + '\n';
 
+            try
+            {
+                cmd.CommandText = txt;
+                reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    output += reader.GetString(0) + '\n';
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message);
             }
 
             return output;
