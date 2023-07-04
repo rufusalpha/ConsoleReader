@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace UCR_App
 {
@@ -10,22 +11,19 @@ namespace UCR_App
         static void Main()
         {
             Console.WriteLine("SQLite test");
-            DataBase db = new DataBase();
-
-            try
-            {
-                string txt = db.ReadData("aaa", "");
-                
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            DatabaseContext db = new DatabaseContext();
             
+            Console.WriteLine(db.DbPath);
+            
+            db.Tests.Add(new Test { Desc = "test1" } );
+            db.Tests.Add(new Test { Desc = "test2" } ); 
+            db.SaveChanges();
 
-
-
-            db.CloseConnection();
+            var query = db.Tests;
+            foreach (var line in query)
+            {
+                Console.WriteLine($"{line.IdTest} {line.Desc}");
+            }
         }
     }
 }
